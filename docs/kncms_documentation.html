@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KNCMS – Tài liệu sử dụng (Facade)</title>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Arial;margin:0;background:#0b0f19;color:#e7eaf1;line-height:1.6}
+    .wrap{max-width:980px;margin:0 auto;padding:28px}
+    h1,h2,h3{line-height:1.25}
+    code,pre{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px}
+    code{padding:2px 6px}
+    pre{padding:14px;overflow:auto}
+    a{color:#9bb7ff}
+    .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px;margin:14px 0}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .tag{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.16);opacity:.9;font-size:12px;margin-right:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>KNCMS – Tài liệu sử dụng</h1>
+    <p>
+      <span class="tag">PHP 8+</span>
+      <span class="tag">PDO</span>
+      <span class="tag">Prepared Statements</span>
+      <span class="tag">XSS Escape</span>
+      <span class="tag">Facade Pattern</span>
+    </p>
+
+    <div class="card">
+      <h2>Mục tiêu kiến trúc</h2>
+      <p><strong>KNCMS</strong> là một <em>Facade</em> (cổng gọi) để giữ nguyên “tên hàm” quen thuộc, nhưng toàn bộ logic được tách theo module chức năng.</p>
+      <pre><code>KNCMS::getIp()  -> Network::getIp()
+KNCMS::query()  -> DB::query()
+KNCMS::e()      -> Security::e()
+KNCMS::capbac() -> UserHelper::capbac()</code></pre>
+    </div>
+
+    <div class="card">
+      <h2>Cấu trúc thư mục</h2>
+      <pre><code>src/KNCMS/
+  KNCMS.php                 (Facade)
+  Core/Env.php              (.env loader)
+  Core/Security.php         (XSS + CSRF)
+  Core/Session.php          (session hardening)
+  Database/DB.php           (PDO)
+  Network/Network.php       (IP + curl)
+  User/UserHelper.php       (business helpers)
+  Utils/Text.php            (slug)
+  Utils/Formatter.php       (format)</code></pre>
+    </div>
+
+    <div class="card">
+      <h2>Cài đặt</h2>
+      <ol>
+        <li>Copy <code>.env.example</code> thành <code>.env</code> và điền DB credentials.</li>
+        <li>Chạy lệnh trong thư mục project:</li>
+      </ol>
+      <pre><code>composer install
+composer dump-autoload</code></pre>
+    </div>
+
+    <div class="card">
+      <h2>Khởi tạo (boot)</h2>
+      <p>Trong entrypoint (ví dụ <code>public/index.php</code>):</p>
+      <pre><code>&lt;?php
+require __DIR__ . '/../vendor/autoload.php';
+
+\KNCMS\KNCMS::boot(dirname(__DIR__));</code></pre>
+      <p><strong>Boot</strong> sẽ:</p>
+      <ul>
+        <li>Start session (hardening)</li>
+        <li>Load <code>.env</code></li>
+        <li>Kết nối PDO (utf8mb4, ERRMODE_EXCEPTION, disable emulate prepares)</li>
+      </ul>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Network</h2>
+        <h3>KNCMS::getIp()</h3>
+        <pre><code>$ip = \KNCMS\KNCMS::getIp();</code></pre>
+        <h3>KNCMS::curl_get($url)</h3>
+        <pre><code>$html = \KNCMS\KNCMS::curl_get("https://example.com");</code></pre>
+      </div>
+
+      <div class="card">
+        <h2>Database</h2>
+        <p><strong>Luôn dùng prepared statements</strong> (params) để chống SQLi.</p>
+        <h3>KNCMS::query($sql, $params)</h3>
+        <pre><code>$stmt = \KNCMS\KNCMS::query(
+  "SELECT * FROM users WHERE id = :id",
+  ["id" =&gt; 1]
+);</code></pre>
+
+        <h3>KNCMS::get_row($sql, $params)</h3>
+        <pre><code>$user = \KNCMS\KNCMS::get_row(
+  "SELECT id,email FROM users WHERE email = :e LIMIT 1",
+  ["e" =&gt; "a@b.com"]
+);</code></pre>
+
+        <h3>KNCMS::get_list($sql, $params)</h3>
+        <pre><code>$rows = \KNCMS\KNCMS::get_list(
+  "SELECT id,email FROM users ORDER BY id DESC LIMIT 10"
+);</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Security</h2>
+      <h3>XSS Escape</h3>
+      <pre><code>echo \KNCMS\KNCMS::e($user["email"]);</code></pre>
+
+      <h3>CSRF (cho form POST)</h3>
+      <pre><code>&lt;input type="hidden" name="_csrf" value="&lt;?= \KNCMS\KNCMS::csrfToken() ?&gt;"&gt;</code></pre>
+      <pre><code>// verify in POST handler:
+if (!\KNCMS\KNCMS::verifyCsrf($_POST["_csrf"] ?? null)) {
+  http_response_code(403);
+  exit("CSRF");
+}</code></pre>
+    </div>
+
+    <div class="card">
+      <h2>User</h2>
+      <h3>KNCMS::capbac($level)</h3>
+      <pre><code>$label = \KNCMS\KNCMS::capbac(2); // Nhân viên</code></pre>
+    </div>
+
+    <div class="card">
+      <h2>Gợi ý mở rộng</h2>
+      <ul>
+        <li>Thêm <code>Auth/Auth.php</code> (login/register) theo pattern tương tự, rồi expose qua <code>KNCMS::login()</code>, <code>KNCMS::register()</code>.</li>
+        <li>Thêm <code>RateLimit/RateLimiter.php</code> và map <code>KNCMS::allow()</code>.</li>
+        <li>Thêm QueryBuilder/ORM nếu cần.</li>
+      </ul>
+    </div>
+
+    <p style="opacity:.8">Tài liệu này đi kèm bộ folder mẫu. Bạn có thể tùy biến namespace và mapping trong composer.json.</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,379 @@
+
+    :root {
+      --primary: #2563eb;
+      --primary2: #22c55e;
+      --bg-soft: #e5f0ff;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --shadow-soft: 0 20px 55px rgba(15, 23, 42, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+        sans-serif;
+      background: radial-gradient(circle at top, #e0f2fe, #eff6ff);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    main {
+      width: 100%;
+      max-width: 480px;
+      margin: 20px 12px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* TOP BRAND BAR (optional) */
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+      margin-bottom: 18px;
+    }
+
+    .brand-chip-logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary2), var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .brand-chip-text {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    /* BIO CARD */
+
+    .bio-shell {
+      width: 100%;
+      background: linear-gradient(145deg, #eff6ff, #dbeafe);
+      border-radius: 30px;
+      padding: 18px 14px 18px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bio-shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top left,
+        rgba(59, 130, 246, 0.22),
+        transparent 60%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .bio-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bio-avatar {
+      width: 104px !important;
+      height: 104px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 18px 40px rgba(37, 99, 235, 0.6);
+    }
+
+    .bio-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .bio-avatar i {
+      font-size: 44px;
+      color: #fff;
+    }
+
+    .bio-name {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .bio-nick {
+      font-size: 13px;
+      color: var(--text-sub);
+      text-align: center;
+    }
+
+    .bio-role {
+      margin-top: 4px;
+      font-size: 12px;
+      padding: 4px 11px;
+      border-radius: 50px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      text-align: center;
+    }
+
+    .bio-jobs {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .job-tag {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .bio-intro {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.6;
+      text-align: center;
+      color: var(--text-main);
+      max-width: 360px;
+    }
+
+    .bio-cta-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn-cta {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(90deg, var(--primary), var(--primary2));
+      color: #ffffff;
+      box-shadow: 0 12px 28px rgba(37, 99, 235, 0.6);
+      text-decoration: none;
+    }
+
+    .btn-cta i {
+      font-size: 13px;
+    }
+
+    .btn-cta.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+      box-shadow: none;
+    }
+
+    /* LINKS LIST */
+
+    .links-wrap {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .link-item {
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 7px 18px rgba(15, 23, 42, 0.08);
+      text-decoration: none;
+      color: var(--text-main);
+      transition: transform 0.13s ease, box-shadow 0.13s ease, border 0.13s;
+    }
+
+    .link-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.16);
+      border-color: #c7d2fe;
+    }
+
+    .link-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: #111827;
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.6);
+    }
+
+    .link-item-icon i {
+      font-size: 15px;
+    }
+
+    .link-item-text {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .link-item-label {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .link-item-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .link-item-arrow {
+      color: #9ca3af;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* link disabled (url null) */
+    .link-item.disabled {
+      cursor: default;
+      pointer-events: none;
+      opacity: 0.7;
+      box-shadow: none;
+    }
+
+    /* FOOTER */
+
+    .footer {
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--text-sub);
+      text-align: center;
+    }
+
+    .footer a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (min-width: 768px) {
+      main {
+        margin-top: 36px;
+      }
+    }
+  /* ví dụ */
+body[data-bg="dark"]{ background-color:#0b0f1a; }
+body[data-font="inter"]{ font-family: Inter, system-ui, sans-serif; }
+body[data-font="roboto"]{ font-family: Roboto, system-ui, sans-serif; }
+body[data-font="opensans"]{ font-family: 'Open Sans', system-ui, sans-serif; }
+/* ===== BG STYLE ===== */
+body[data-bg="soft"] { background: #f4f6ff; }
+body[data-bg="dark"], body[data-bg="toi"] { background: #0b0f1a; }
+body[data-bg="light"], body[data-bg="sang"] { background: #ffffff; }
+
+/* ===== FONT STYLE ===== */
+body[data-font="inter"] { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
+
+/* mọi block trong card chiếm full width đúng layout */
+.bio-inner > *{
+  width: 100%;
+}
+
+/* intro/mô tả luôn xuống dòng + đúng vị trí */
+.bio-intro{
+  display: block;
+  width: 100%;
+  margin: 12px 0 0;
+  line-height: 1.55;
+  white-space: pre-line;   /* \n xuống dòng đúng */
+  word-break: break-word;  /* link dài không phá layout */
+}
+
+/* jobs/tags wrap đúng */
+.bio-jobs{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center; /* nếu bạn muốn tags ở giữa */
+  width: 100%;
+}
+
+/* links list full width */
+.links-wrap{
+  width: 100%;
+}
+.bio-inner{
+  position: relative;
+  padding-top: 56px; /* chừa chỗ cho avatar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* nền theo mode mới */
+.bio-shell[data-bg-mode="solid"]{
+  background: var(--bg-solid, #1b1f2a);
+}
+
+.bio-shell[data-bg-mode="gradient"]{
+  background: var(--bg-gradient, linear-gradient(135deg,#00c6ff,#0072ff));
+}
+
+/* cover ảnh giữ như cũ (ví dụ) */
+.bio-shell.has-cover{
+  background: var(--cover-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

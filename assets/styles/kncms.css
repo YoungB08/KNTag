@@ -1,0 +1,166 @@
+/* =========================
+   KNNotify – Modern Notifications
+   ========================= */
+
+.knnotify-host {
+  position: fixed;
+  z-index: 9999;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: min(420px, calc(100vw - 36px));
+}
+
+@media (max-width: 520px) {
+  .knnotify-host {
+    left: 18px;
+    right: 18px;
+    top: 14px;
+    max-width: calc(100vw - 36px);
+  }
+}
+
+.knnotify {
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  transform: translateY(-6px);
+  opacity: 0;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.knnotify.is-in {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.knnotify.is-out {
+  transform: translateY(-6px);
+  opacity: 0;
+}
+
+.knnotify-top {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 12px 10px;
+}
+
+.knnotify-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.22);
+}
+
+.knnotify-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.knnotify-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 2px;
+  line-height: 1.25;
+}
+
+.knnotify-msg {
+  font-size: 12px;
+  color: var(--text-sub);
+  line-height: 1.35;
+  word-wrap: break-word;
+}
+
+.knnotify-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+  flex: 0 0 auto;
+}
+
+.knnotify-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 12px;
+  color: rgba(17, 24, 39, 0.65);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.knnotify-btn:hover {
+  background: rgba(37, 99, 235, 0.10);
+  color: rgba(17, 24, 39, 0.9);
+}
+
+.knnotify-bar {
+  height: 3px;
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(1);
+}
+
+.knnotify-bar.is-anim {
+  transition: transform linear;
+  transform: scaleX(0);
+}
+
+/* Variants */
+.knnotify[data-variant="success"] .knnotify-icon {
+  background: linear-gradient(135deg, #22c55e, #3b82f6);
+  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.30);
+}
+.knnotify[data-variant="success"] .knnotify-bar {
+  background: linear-gradient(90deg, #22c55e, #3b82f6);
+}
+
+.knnotify[data-variant="info"] .knnotify-icon {
+  background: linear-gradient(135deg, #3b82f6, #22c55e);
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.28);
+}
+.knnotify[data-variant="info"] .knnotify-bar {
+  background: linear-gradient(90deg, #3b82f6, #22c55e);
+}
+
+.knnotify[data-variant="warning"] .knnotify-icon {
+  background: linear-gradient(135deg, #f59e0b, #3b82f6);
+  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.22);
+}
+.knnotify[data-variant="warning"] .knnotify-bar {
+  background: linear-gradient(90deg, #f59e0b, #3b82f6);
+}
+
+.knnotify[data-variant="error"] .knnotify-icon {
+  background: linear-gradient(135deg, #ef4444, #3b82f6);
+  box-shadow: 0 12px 30px rgba(239, 68, 68, 0.18);
+}
+.knnotify[data-variant="error"] .knnotify-bar {
+  background: linear-gradient(90deg, #ef4444, #3b82f6);
+}
+
+/* Motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .knnotify, .knnotify.is-in, .knnotify.is-out {
+    transition: none !important;
+  }
+  .knnotify-bar.is-anim {
+    transition: none !important;
+  }
+}
