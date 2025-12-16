@@ -114,7 +114,7 @@ use KNCMS\KNCMS;
     }
 
     function goToDesign() {
-      window.location.href = "/Auth";
+      window.location.href = "/";
     }
 
     function switchMode(nextMode) {
