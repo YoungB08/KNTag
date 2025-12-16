@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace KNCMS\Database;
 
 use PDO;
+use KNCMS\Core\Env;
 
 final class DB
 {
@@ -13,11 +14,27 @@ final class DB
     {
         if (self::$pdo instanceof PDO) return;
 
-        $host = (string)($cfg['host'] ?? '127.0.0.1');
-        $port = (int)($cfg['port'] ?? 3306);
-        $db   = (string)($cfg['db'] ?? '');
-        $user = (string)($cfg['user'] ?? '');
-        $pass = (string)($cfg['pass'] ?? '');
+        // If both `local` and `server` configs are provided, choose based on APP_LOCAL
+        // Otherwise fall back to the provided root-level config array.
+        $useLocal = false;
+        try {
+            $useLocal = Env::bool('APP_LOCAL', false);
+        } catch (\Throwable $e) {
+            // Env not available or other error -> default to false
+            $useLocal = false;
+        }
+
+        if (isset($cfg['local']) && isset($cfg['server'])) {
+            $sel = $useLocal ? $cfg['local'] : $cfg['server'];
+        } else {
+            $sel = $cfg;
+        }
+
+        $host = (string)($sel['host'] ?? $cfg['host'] ?? '127.0.0.1');
+        $port = (int)($sel['port'] ?? $cfg['port'] ?? 3306);
+        $db   = (string)($sel['db'] ?? $cfg['db'] ?? '');
+        $user = (string)($sel['user'] ?? $cfg['user'] ?? '');
+        $pass = (string)($sel['pass'] ?? $cfg['pass'] ?? '');
 
         if ($db === '') {
             throw new \RuntimeException('DB database name is empty.');

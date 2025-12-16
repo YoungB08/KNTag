@@ -155,4 +155,18 @@ final class KNCMS
 
         return false;
     }
+    public static function getUserInfo(): ?array
+    {
+        if (!self::checkLogin()) {
+            return null;
+        }
+
+        $userId = (int)($_SESSION['auth']['uid'] ?? 0);
+        if ($userId <= 0) {
+            return null;
+        }
+
+        $user = self::get_row('SELECT * FROM users WHERE id=:id LIMIT 1', ['id' => $userId]);
+        return $user === false ? null : $user;
+    }
 }

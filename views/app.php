@@ -7,10 +7,9 @@ require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 use KNCMS\KNCMS;
 
 if (!KNCMS::checkLogin()) {
-    echo "Đăng nhập để tạo thẻ Bio cá nhân.";
+    header('Location: ' . KNCMS::baseUrl() . '/auth');
     exit;
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -49,57 +48,7 @@ if (!KNCMS::checkLogin()) {
 <body>
   <main>
 
-    <!-- NAV -->
-    <div class="kn-nav-wrap">
-      <nav class="kn-nav">
-        <div class="kn-nav-left">
-          <div class="kn-nav-logo">KN</div>
-          <div class="kn-nav-brand">
-            <span class="kn-nav-brand-title">KN BioCard</span>
-            <span class="kn-nav-brand-sub">Thẻ Bio cá nhân – NFC</span>
-          </div>
-        </div>
-
-        <div class="kn-nav-center">
-          <button class="kn-nav-btn" data-go="auth">
-            <i class="fa-solid fa-house"></i> Trang chủ
-          </button>
-          <button class="kn-nav-btn" data-go="design">
-            <i class="fa-solid fa-id-card-clip"></i> Tạo thẻ
-          </button>
-          <button class="kn-nav-btn">
-            <i class="fa-regular fa-clock"></i> Lịch sử
-          </button>
-          <button class="kn-nav-btn">
-            <i class="fa-regular fa-life-ring"></i> Hỗ trợ
-          </button>
-        </div>
-
-        <div class="kn-nav-right">
-          <div class="kn-nav-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input placeholder="Tìm kiếm..." />
-          </div>
-          <div class="kn-avatar-wrap" id="kn-avatar-wrap">
-            <div class="kn-avatar" id="kn-avatar">U</div>
-            <div class="kn-dropdown" id="kn-dropdown">
-              <div class="kn-dropdown-header" id="kn-dropdown-email">
-                Đang đăng nhập: Guest
-              </div>
-              <div class="kn-dropdown-item">
-                <i class="fa-regular fa-user"></i>
-                Hồ sơ của tôi
-              </div>
-              <div class="kn-dropdown-item" id="kn-dropdown-logout">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                Đăng xuất
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </div>
-
+  <?php $page = 'app';include_once $_SERVER['DOCUMENT_ROOT'] . '/private/nav.php'; ?>
     <!-- MAIN LAYOUT -->
     <section class="app-wrapper">
       <!-- LEFT: PREVIEW -->

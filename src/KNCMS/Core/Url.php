@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace KNCMS\Core;
@@ -9,8 +10,12 @@ final class Url
 
     public static function init(): void
     {
-        $envBase = Env::get('BASE_URL');
-
+        if (Env::get('APP_LOCAL') == 'true') {
+            self::$baseUrl = 'http://localhost/';
+            return;
+        } else {
+            $envBase = Env::get('BASE_URL');
+        }
         if ($envBase) {
             self::$baseUrl = rtrim($envBase, '/');
             return;
