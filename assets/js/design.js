@@ -1,18 +1,22 @@
+(()=>{
+  if (window.__KN_BIOCARD_DESIGN_INIT__) return;
+  window.__KN_BIOCARD_DESIGN_INIT__ = true;
+  document.addEventListener('DOMContentLoaded', () => {
+  const __setText = (el, v) => { if (el) el.textContent = v; };
+  const __on = (el, ev, fn, opt) => el && el.addEventListener(ev, fn, opt);
+
 // ==== AUTH / NAV DEMO ====
 const TOKEN_KEY = "kn_token";
 const currentUser = null;
-const res = await fetch(`${API_BASE}/api/me`, {
-    headers: { "Authorization": "Bearer " + token }
-});
 
-const userEmailLabel = document.getElementById("user-email-label");
+const userEmailLabel = document.getElementById("user-email-label");0
 const userAvatar = document.getElementById("user-avatar");
 const logoutBtn = document.getElementById("logout-btn");
 
-userEmailLabel.textContent = currentUser || "";
-userAvatar.textContent = (currentUser || "U").charAt(0).toUpperCase();
+__setText(userEmailLabel, currentUser || "");
+__setText(userAvatar, (currentUser || "U").charAt(0).toUpperCase());
 
-logoutBtn.addEventListener("click", () => {
+__on(logoutBtn, "click", () => {
   localStorage.removeItem(TOKEN_KEY);
   window.location.href = "/Auth";
 });
@@ -23,20 +27,21 @@ const avatarWrap = document.getElementById("kn-avatar-wrap");
 const dropdownEmail = document.getElementById("kn-dropdown-email");
 const dropdownLogout = document.getElementById("kn-dropdown-logout");
 
-avatarNav.textContent = (currentUser || "U").charAt(0).toUpperCase();
-dropdownEmail.textContent = "Đang đăng nhập: " + (currentUser || "Guest");
+__setText(avatarNav, (currentUser || "U").charAt(0).toUpperCase());
+__setText(dropdownEmail, "Đang đăng nhập: " + (currentUser || "Guest"));
 
-avatarNav.addEventListener("click", () => {
+__on(avatarNav, "click", () => {
   avatarWrap.classList.toggle("open");
 });
 
 document.addEventListener("click", (e) => {
+  if (!avatarWrap) return;
   if (!avatarWrap.contains(e.target)) {
     avatarWrap.classList.remove("open");
   }
 });
 
-dropdownLogout.addEventListener("click", () => {
+__on(dropdownLogout, "click", () => {
   localStorage.removeItem(TOKEN_KEY);
   window.location.href = "/Auth";
 });
@@ -54,14 +59,14 @@ document.querySelectorAll(".kn-nav-btn").forEach((btn) => {
 
   btn.addEventListener("click", () => {
     if (target === "auth") window.location.href = "/Auth";
-    if (target === "design") window.location.href = "/Home";
+    if (target === "design") window.location.href = "Home";
   });
 });
 
 // ==== DOM ELEMENTS ====
 const card = document.getElementById("card-front");
 const cardBack = document.getElementById("card-back");
-const backOverlay = cardBack.querySelector(".back-overlay");
+const backOverlay = cardBack ? cardBack.querySelector(".back-overlay") : null;
 const backDarkLayer = document.getElementById("back-dark-layer");
 const frontDarkLayer = document.getElementById("front-dark-layer");
 
@@ -113,22 +118,125 @@ const chkEditBack = document.getElementById("chk-edit-back");
 const inputBackShort = document.getElementById("input-back-short");
 const inputBackSize = document.getElementById("input-back-size");
 const labelBackSize = document.getElementById("label-back-size");
-
+const textareaBackShort = document.getElementById("input-back-short");
 const btnDownloadPng = document.getElementById("btn-download-png");
 const btnDownloadPdf = document.getElementById("btn-download-pdf");
 const btnResetLayout = document.getElementById("btn-reset-layout");
 
-// ==== STATE ====
-let logoVisible = false;
-let currentBgMode = "default";
-let layerCounter = 0;
-let currentMaxZ = 30;
+// ==== ACCESS LEVEL (1-3) ====
+const ACCESS_LEVEL = Math.max(1, Math.min(3, Number(document.body?.dataset?.accessLevel || window.KN_ACCESS_LEVEL || 3)));
 
-// font map
-const FONT_MAP = {
-  inter: '"Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
-  poppins: '"Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
-  playfair: '"Playfair Display", "Times New Roman", serif',
+function __applyTierGates(){
+  const allowLayers = ACCESS_LEVEL >= 2;
+  const allowHideLogo = ACCESS_LEVEL >= 3;
+
+  // Level 1: không cho layer
+  if (inputCustomLayer) inputCustomLayer.disabled = !allowLayers;
+  if (inputLayerText) inputLayerText.disabled = !allowLayers;
+  if (inputLayerTextSize) inputLayerTextSize.disabled = !allowLayers;
+  if (btnAddTextLayer) btnAddTextLayer.disabled = !allowLayers;
+  if (layerTextFont) layerTextFont.querySelectorAll('button').forEach(b => b.disabled = !allowLayers);
+  if (layerList) layerList.style.pointerEvents = allowLayers ? '' : 'none';
+  if (layerList) layerList.style.opacity = allowLayers ? '' : '0.6';
+  if(textareaBackShort) textareaBackShort.disabled = !allowLayers;
+  
+  // Level 3: mới cho ẩn logo
+  if (btnToggleLogo) btnToggleLogo.disabled = !allowHideLogo;
+}
+
+__applyTierGates();
+
+  // Disabled-hover tooltip for gated features
+  (function attachDisabledHints(){
+    const TIP_TEXT = 'Gói Cao cấp mới được phép chỉnh sửa';
+    let tipEl = null;
+
+    function createTip(){
+      if (tipEl) return tipEl;
+      tipEl = document.createElement('div');
+      tipEl.className = 'kn-disabled-tooltip';
+      Object.assign(tipEl.style, {
+        position: 'fixed',
+        padding: '8px 10px',
+        background: 'rgba(0,0,0,0.85)',
+        color: '#fff',
+        fontSize: '13px',
+        borderRadius: '6px',
+        pointerEvents: 'none',
+        zIndex: 99999,
+        transform: 'translate(-50%, -120%)',
+        boxShadow: '0 6px 18px rgba(0,0,0,0.28)'
+      });
+      document.body.appendChild(tipEl);
+      return tipEl;
+    }
+
+    function showTip(e, msg){
+      const layers = [];
+      const cardRect = card.getBoundingClientRect();
+      card.querySelectorAll('.card-layer, .card-layer-text').forEach(el => {
+        const type = el.classList.contains('card-layer-text') ? 'text' : 'image';
+        const leftPx = parseFloat(el.style.left) || 0;
+        const topPx = parseFloat(el.style.top) || 0;
+        const leftPct = cardRect.width ? (leftPx / cardRect.width) : 0;
+        const topPct = cardRect.height ? (topPx / cardRect.height) : 0;
+        const z = Number(el.style.zIndex) || 0;
+        if (type === 'image') {
+          layers.push({
+            type,
+            src: el.src || el.dataset.src || null,
+            leftPct: Number(leftPct.toFixed(6)),
+            topPct: Number(topPct.toFixed(6)),
+            width: el.style.width || el.dataset.size || null,
+            z
+          });
+        } else {
+          layers.push({
+            type,
+            text: el.textContent || '',
+            leftPct: Number(leftPct.toFixed(6)),
+            topPct: Number(topPct.toFixed(6)),
+            fontSize: el.style.fontSize || el.dataset.size || null,
+            fontFamily: el.style.fontFamily || null,
+            z
+          });
+        }
+      });
+
+      const bgImage = card.style.backgroundImage || null;
+      // font preset key
+      let fontKey = 'inter';
+      const activeFontBtn = fontPresets?.querySelector('.pill-option.active');
+      if (activeFontBtn) fontKey = activeFontBtn.dataset.font || fontKey;
+
+      const payload = {
+        title: inputTitle?.value || '',
+        titleSize: inputTitleSize?.value || '',
+        subtitle: inputSubtitle?.value || '',
+        subtitleSize: inputSubtitleSize?.value || '',
+        font: fontKey,
+        darkness: inputDarkness?.value || 0,
+        background: {
+          mode: currentBgMode,
+          css: card.style.background || '',
+          image: bgImage && bgImage !== 'none' ? bgImage.replace(/^url\((?:"|')?(.*?)(?:"|')?\)$/, '$1') : null
+        },
+        avatar: cardIconImg?.src || null,
+        logo: (cardLogo && cardLogo.style.backgroundImage) ? cardLogo.style.backgroundImage.replace(/^url\((?:"|')?(.*?)(?:"|')?\)$/, '$1') : null,
+        logoVisible: logoVisible,
+        backShort: inputBackShort?.value || '',
+        backSize: inputBackSize?.value || '',
+        chkSyncBack: !!(chkSyncBack && chkSyncBack.checked),
+        chkEditBack: !!(chkEditBack && chkEditBack.checked),
+        qr: {
+          url: inputQrUrl?.value || '',
+          size: inputQrSize?.value || ''
+        },
+        layers
+      };
+
+      return payload;
+
 };
 
 // ==== HELPERS ====
@@ -203,7 +311,8 @@ function isOverlapWithLogo(newX, newY, el) {
 }
 
 // generic drag
-function makeDraggable(el) {
+function makeDraggable(el, opts = {}) {
+  const avoidLogo = !!opts.avoidLogo;
   let isDown = false;
   let offsetX = 0;
   let offsetY = 0;
@@ -247,6 +356,8 @@ function makeDraggable(el) {
     x = Math.max(0, Math.min(x, maxX));
     y = Math.max(0, Math.min(y, maxY));
 
+    if (avoidLogo && isOverlapWithLogo(x, y, el)) return;
+
     el.style.position = "absolute";
     el.style.left = x + "px";
     el.style.top = y + "px";
@@ -265,19 +376,19 @@ function makeDraggable(el) {
 
 
 // ==== BACK CONTROLS ====
-chkSyncBack.addEventListener("change", syncBackBackground);
+__on(chkSyncBack, "change", syncBackBackground);
 
-chkEditBack.addEventListener("change", () => {
+__on(chkEditBack, "change", () => {
   const editable = chkEditBack.checked;
   inputBackShort.disabled = !editable;
 });
 
-inputBackShort.addEventListener("input", () => {
+__on(inputBackShort, "input", () => {
   backShortEl.textContent = inputBackShort.value || "";
 });
 
 // size mô tả mặt sau
-inputBackSize.addEventListener("input", () => {
+__on(inputBackSize, "input", () => {
   const val = Number(inputBackSize.value);
   labelBackSize.textContent = val + "%";
   const base = 11; // base px
@@ -285,23 +396,23 @@ inputBackSize.addEventListener("input", () => {
 });
 
 // ==== TEXT / TITLE ====
-inputTitle.addEventListener("input", () => {
+__on(inputTitle, "input", () => {
   cardTitle.textContent = inputTitle.value || "Guest User";
 });
 
-inputSubtitle.addEventListener("input", () => {
+__on(inputSubtitle, "input", () => {
   cardSubtitle.textContent =
     inputSubtitle.value || "Thẻ bio cá nhân tạo bằng KN BioCard";
 });
 
-inputTitleSize.addEventListener("input", () => {
+__on(inputTitleSize, "input", () => {
   const val = Number(inputTitleSize.value);
   labelTitleSize.textContent = val + "%";
   const base = 22;
   cardTitle.style.fontSize = (base * val) / 100 + "px";
 });
 
-inputSubtitleSize.addEventListener("input", () => {
+__on(inputSubtitleSize, "input", () => {
   const val = Number(inputSubtitleSize.value);
   labelSubtitleSize.textContent = val + "%";
   const base = 14;
@@ -309,7 +420,7 @@ inputSubtitleSize.addEventListener("input", () => {
 });
 
 // ==== FONT PRESETS ====
-fontPresets.addEventListener("click", (e) => {
+__on(fontPresets, "click", (e) => {
   const btn = e.target.closest(".pill-option");
   if (!btn) return;
   fontPresets.querySelectorAll(".pill-option").forEach((b) =>
@@ -324,7 +435,12 @@ fontPresets.addEventListener("click", (e) => {
 });
 
 // ==== AVATAR ====
-inputAvatar.addEventListener("change", (e) => {
+// Load default avatar from data-default attribute
+if (inputAvatar && inputAvatar.dataset.default) {
+  cardIconImg.src = inputAvatar.dataset.default;
+}
+
+__on(inputAvatar, "change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -335,7 +451,7 @@ inputAvatar.addEventListener("change", (e) => {
 });
 
 // ==== BACKGROUND ====
-bgPresets.addEventListener("click", (e) => {
+__on(bgPresets, "click", (e) => {
   const btn = e.target.closest(".pill-option");
   if (!btn) return;
   bgPresets.querySelectorAll(".pill-option").forEach((b) =>
@@ -345,7 +461,7 @@ bgPresets.addEventListener("click", (e) => {
   applyBgPreset(btn.dataset.bg);
 });
 
-inputBgImage.addEventListener("change", (e) => {
+__on(inputBgImage, "change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -358,16 +474,16 @@ inputBgImage.addEventListener("change", (e) => {
   reader.readAsDataURL(file);
 });
 
-btnRemoveBg.addEventListener("click", () => {
+__on(btnRemoveBg, "click", () => {
   inputBgImage.value = "";
   applyBgPreset(currentBgMode);
 });
 
 // DARKNESS
-inputDarkness.addEventListener("input", applyDarkness);
+__on(inputDarkness, "input", applyDarkness);
 
 // ==== LOGO (FRONT) ====
-inputLogo.addEventListener("change", (e) => {
+__on(inputLogo, "change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -379,7 +495,8 @@ inputLogo.addEventListener("change", (e) => {
   reader.readAsDataURL(file);
 });
 
-btnToggleLogo.addEventListener("click", () => {
+__on(btnToggleLogo, "click", () => {
+  if (ACCESS_LEVEL < 3) return;
   logoVisible = !logoVisible;
   if (logoVisible) {
     cardLogo.classList.add("show");
@@ -405,8 +522,8 @@ function renderQR() {
     correctLevel: QRCode.CorrectLevel.H,
   });
 }
-inputQrUrl.addEventListener("input", renderQR);
-inputQrSize.addEventListener("input", renderQR);
+__on(inputQrUrl, "input", renderQR);
+__on(inputQrSize, "input", renderQR);
 renderQR();
 
 // ==== LAYER SYSTEM ====
@@ -511,7 +628,8 @@ function createTextLayer(content, fontKey, sizePx) {
 }
 
 // upload image layer
-inputCustomLayer.addEventListener("change", (e) => {
+__on(inputCustomLayer, "change", (e) => {
+  if (ACCESS_LEVEL < 2) return;
   const files = Array.from(e.target.files || []);
   files.forEach((file) => {
     const reader = new FileReader();
@@ -524,7 +642,8 @@ inputCustomLayer.addEventListener("change", (e) => {
 });
 
 // text layer controls
-layerTextFont.addEventListener("click", (e) => {
+__on(layerTextFont, "click", (e) => {
+  if (ACCESS_LEVEL < 2) return;
   const btn = e.target.closest(".pill-option");
   if (!btn) return;
   layerTextFont.querySelectorAll(".pill-option").forEach((b) =>
@@ -538,7 +657,8 @@ inputLayerTextSize.addEventListener("input", () => {
   labelLayerTextSize.textContent = val + "px";
 });
 
-btnAddTextLayer.addEventListener("click", () => {
+__on(btnAddTextLayer, "click", () => {
+  if (ACCESS_LEVEL < 2) return;
   const content = inputLayerText.value || "";
   const size = Number(inputLayerTextSize.value) || 18;
   const activeBtn =
@@ -549,7 +669,8 @@ btnAddTextLayer.addEventListener("click", () => {
 });
 
 // layer list actions
-layerList.addEventListener("click", (e) => {
+__on(layerList, "click", (e) => {
+  if (ACCESS_LEVEL < 2) return;
   const item = e.target.closest(".layer-item");
   if (!item) return;
   const id = item.dataset.layerId;
@@ -593,7 +714,8 @@ layerList.addEventListener("click", (e) => {
 });
 
 // slider size cho từng layer
-layerList.addEventListener("input", (e) => {
+__on(layerList, "input", (e) => {
+  if (ACCESS_LEVEL < 2) return;
   const slider = e.target;
   const id = slider.getAttribute("data-size-slider");
   if (!id) return;
@@ -620,7 +742,7 @@ makeDraggable(cardLogo, { avoidLogo: false });
 makeDraggable(bioTextBlock, { avoidLogo: true });
 
 // ==== RESET ====
-btnResetLayout.addEventListener("click", () => {
+__on(btnResetLayout, "click", () => {
   bioQrWrapper.style.position = "";
   bioQrWrapper.style.left = "";
   bioQrWrapper.style.top = "";
@@ -676,7 +798,7 @@ btnResetLayout.addEventListener("click", () => {
 });
 
 // ==== EXPORT PNG/PDF ====
-btnDownloadPng.addEventListener("click", () => {
+__on(btnDownloadPng, "click", () => {
   html2canvas(card, { scale: 3 }).then((canvas) => {
     const link = document.createElement("a");
     link.download = "kn-biocard-front.png";
@@ -685,7 +807,7 @@ btnDownloadPng.addEventListener("click", () => {
   });
 });
 
-btnDownloadPdf.addEventListener("click", () => {
+__on(btnDownloadPdf, "click", () => {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("l", "mm", "credit-card");
 
@@ -702,6 +824,76 @@ btnDownloadPdf.addEventListener("click", () => {
       pdf.save("kn-biocard-2-mat.pdf");
     });
   });
+});
+
+// ==== SAVE BIO (POST to /api/bio/create) ====
+async function collectBioData() {
+  const layers = [];
+  card.querySelectorAll('.card-layer, .card-layer-text').forEach(el => {
+    const type = el.classList.contains('card-layer-text') ? 'text' : 'image';
+    const rect = el.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    const left = parseFloat(el.style.left) || (rect.left - cardRect.left);
+    const top = parseFloat(el.style.top) || (rect.top - cardRect.top);
+    const z = Number(el.style.zIndex) || 0;
+    if (type === 'image') {
+      layers.push({ type, src: el.src || el.dataset.src || null, left, top, width: el.style.width || el.dataset.size || null, z });
+    } else {
+      layers.push({ type, text: el.textContent || '', left, top, fontSize: el.style.fontSize || el.dataset.size || null, fontFamily: el.style.fontFamily || null, z });
+    }
+  });
+
+  const bgImage = card.style.backgroundImage || null;
+  const payload = {
+    title: inputTitle?.value || '',
+    subtitle: inputSubtitle?.value || '',
+    background: { mode: currentBgMode, css: card.style.background || '', image: bgImage && bgImage !== 'none' ? bgImage.replace(/^url\((?:"|')?(.*?)(?:"|')?\)$/, '$1') : null },
+    avatar: cardIconImg?.src || null,
+    logo: (cardLogo && cardLogo.style.backgroundImage) ? cardLogo.style.backgroundImage.replace(/^url\((?:"|')?(.*?)(?:"|')?\)$/, '$1') : null,
+    backShort: inputBackShort?.value || '',
+    layers
+  };
+  return payload;
+}
+
+async function saveBio() {
+  const btn = document.getElementById('btn-save-bio');
+  if (btn) btn.disabled = true;
+  try {
+    const data = await collectBioData();
+    const apiUrl = (window.location.origin || '') + '/api/bio/create';
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ok: true, data })
+    });
+    let j = null;
+    try { j = await res.json(); } catch (e) {}
+    if (res.ok && j && j.ok) {
+      if (window.KNNotify) KNNotify.success(j.message || 'Lưu Bio thành công');
+      else alert('Lưu Bio thành công');
+      // redirect to public bio if returned
+      if (j.data && j.data.url) window.location.href = j.data.url;
+    } else {
+      const msg = (j && j.message) || 'Lưu thất bại';
+      if (window.KNNotify) KNNotify.error(msg); else alert(msg);
+    }
+  } catch (e) {
+    console.error(e);
+    if (window.KNNotify) KNNotify.error('Lỗi khi lưu'); else alert('Lỗi khi lưu');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+__on(document.getElementById('btn-save-bio'), 'click', (e) => {
+  e.preventDefault();
+  if (ACCESS_LEVEL < 1) { if (window.KNNotify) KNNotify.warning('Không có quyền.'); else alert('Không có quyền.'); return; }
+  saveBio();
+}); 
+});
+});
 });
 
 // init

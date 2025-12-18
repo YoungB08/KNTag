@@ -19,7 +19,7 @@ if (!KNCMS::checkLogin()) {
   <title>KN BioCard – Thiết kế thẻ Bio NFC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description"
-    content="Tùy chỉnh thẻ Bio cá nhân: tên, mô tả, background, logo, QR, layer ảnh & text; tải PNG hoặc PDF. Demo chạy local, không cần backend." />
+    content="Tùy chỉnh thẻ Bio cá nhân: tên, mô tả, background, logo, QR, layer ảnh & text; tải PNG hoặc PDF." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -48,7 +48,7 @@ if (!KNCMS::checkLogin()) {
 <body>
   <main>
 
-  <?php $page = 'app';include_once $_SERVER['DOCUMENT_ROOT'] . '/private/nav.php'; ?>
+  <?php include_once $_SERVER['DOCUMENT_ROOT'] . '/private/nav.php'; ?>
     <!-- MAIN LAYOUT -->
     <section class="app-wrapper">
       <!-- LEFT: PREVIEW -->
@@ -56,11 +56,11 @@ if (!KNCMS::checkLogin()) {
         <div class="panel-header">
           <div>
             <div class="panel-title">Xem trước thẻ</div>
-            <div class="small muted">
+            <div class="badge-demo muted">
               Kéo QR / logo / text / layer trực tiếp trên thẻ để chỉnh vị trí.
             </div>
           </div>
-          <span class="badge-demo">Demo local – không cần backend</span>
+          <!-- <span class="badge-demo">Demo local – không cần backend</span> -->
         </div>
 
         <div class="preview-area">
@@ -108,7 +108,7 @@ if (!KNCMS::checkLogin()) {
                   <img
                     id="back-logo-img"
                     class="back-logo-img"
-                    src="https://dummyimage.com/120x120/2563eb/ffffff&text=KN"
+                    src="<?= KNCMS::baseUrl() ?>/assets/kn-logo.png"
                     alt="KNTech Logo" />
                 </div>
                 <div class="back-short" id="back-short">
@@ -123,6 +123,9 @@ if (!KNCMS::checkLogin()) {
           </div>
 
           <div class="preview-actions">
+            <button class="btn btn-success" id="btn-save-bio">
+              <i class="fa-solid fa-floppy-disk"></i> Lưu Bio
+            </button>
             <button class="btn btn-primary" id="btn-download-png">
               <i class="fa-solid fa-download"></i> Tải PNG (mặt trước)
             </button>
@@ -209,10 +212,10 @@ if (!KNCMS::checkLogin()) {
           <!-- Avatar -->
           <div class="field">
             <div class="field-label">Ảnh avatar / icon tròn</div>
-            <input type="file" id="input-avatar" accept="image/*" class="field-input-file" />
+             <input type="file" id="input-avatar" accept="image/*" class="field-input-file" data-default="<?= KNCMS::baseUrl() ?>/assets/kn-logo.png" />
             <p class="field-note">
               Hình tròn ở góc trên trái (mặt trước).
-            </p>
+            </p>  
           </div>
 
           <!-- Background -->
@@ -328,7 +331,7 @@ if (!KNCMS::checkLogin()) {
               id="input-qr-url"
               class="field-input"
               placeholder="https://example.com"
-              value="https://example.com" />
+              value="<?= KNCMS::baseUrl() ?>/@<?= KNCMS::getUserInfo()['nickname'] ?>" disabled/>
             <p class="field-note">
               Dán link website, Linktree, profile mạng xã hội hoặc link NFC.
             </p>
@@ -392,13 +395,14 @@ if (!KNCMS::checkLogin()) {
   <script src="<?= KNCMS::baseUrl() ?>/assets/js/knloader.js"></script>
 
   <script>
-    KNLoader.showFor(2000, {
+    KNLoader.showFor(1000, {
       brand: "KN BioCard",
       msg: "Đang khởi tạo giao diện…"
     });
   </script>
   <!-- JS -->
-  <script src="assets/js/desgin.js"></script>
+   <script>window.KN_ACCESS_LEVEL = <?= KNCMS::getUserInfo()['package'] ?>;</script>
+   <script src="<?= KNCMS::baseUrl() ?>assets/js/design.js"></script>
 </body>
 
 </html>

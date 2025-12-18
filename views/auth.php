@@ -254,7 +254,7 @@ use KNCMS\KNCMS;
   <script src="<?= KNCMS::baseUrl() ?>/assets/js/knloader.js"></script>
 
   <script>
-    KNLoader.showFor(2000, {
+    KNLoader.showFor(1000, {
       brand: "KN BioCard",
       msg: "Đang khởi tạo giao diện…"
     });

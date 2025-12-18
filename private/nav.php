@@ -5,8 +5,19 @@ use KNCMS\KNCMS;
 
 $user = KNCMS::getUserInfo();
 // var_dump($user);
+function current_path(): string
+{
+    $uri = $_SERVER['REQUEST_URI'] ?? '/';
+    $path = parse_url($uri, PHP_URL_PATH);
+    return $path ?: '/';
+}
+
+
 function activeNav(string $navItem): string {
-    global $page;
+    $page = current_path();
+        $page = trim($page, '/');
+        $pageParts = explode('/', $page);
+        $page = $pageParts[0] ?? '';
     if( $page === $navItem ) {
         return 'active';
     }
@@ -24,9 +35,9 @@ if (KNCMS::checkLogin()) : ?>
             </div>
 
             <div class="kn-nav-center">
-                <button class="kn-nav-btn <?= activeNav('dashboard') ?>"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
+                <button class="kn-nav-btn <?= activeNav('dashboard') ?? activeNav('home') ?? activeNav('') ?>"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
                 <button class="kn-nav-btn <?= activeNav('bio') ?>" data-go="/bio/layout"><i class="fa-solid fa-user"></i> Bio layout</button>
-                <button class="kn-nav-btn <?= activeNav('nfc') ?>" data-go="/nfc"><i class="fa-solid fa-id-card-clip"></i> Thẻ NFC</button>
+                <button class="kn-nav-btn <?= activeNav('app') ?>" data-go="/nfc"><i class="fa-solid fa-id-card-clip"></i> Thẻ NFC</button>
                 <button class="kn-nav-btn <?= activeNav('history') ?>" data-go="/history"><i class="fa-regular fa-clock"></i> Lịch sử</button>
             </div>
 

@@ -36,7 +36,9 @@ Routes::get('/info', function () {
 Routes::post('/info', function () {
     require PROJECT_ROOT . '/views/info.php';
 });
-
+Routes::get('/card/list', function () {
+    require PROJECT_ROOT . '/views/card_list.php';
+});
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 if (preg_match('~^/@([a-zA-Z0-9._-]+)$~', $uri, $m)) {
     $_GET['u'] = $m[1];
@@ -48,6 +50,12 @@ require PROJECT_ROOT . '/api/Auth.php';
 
 require PROJECT_ROOT . '/api/bio.php';
 require PROJECT_ROOT . '/api/viewer.php';
+
+/* ========= DASHBOARD API ROUTES ========= */
+require PROJECT_ROOT . '/api/dashboard.php';
+
+/* =========== Sercurity Middleware =========== */
+require PROJECT_ROOT . '/src/KNCMS/Security.php';
 
 register_auth_routes();
 Routes::dispatch();

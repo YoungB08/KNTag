@@ -149,7 +149,7 @@ if (!function_exists('ensure_core_blocks_payload')) {
     {
         if (count($blocks) === 0) return default_blocks();
 
-        $need = ['avatar','name','nickname','role','jobs','intro'];
+        $need = ['avatar', 'name', 'nickname', 'role', 'jobs', 'intro'];
         $seen = [];
         foreach ($blocks as $b) {
             $t = (string)($b['type'] ?? '');
@@ -162,7 +162,10 @@ if (!function_exists('ensure_core_blocks_payload')) {
         foreach ($need as $t) {
             if (!isset($seen[$t])) {
                 foreach ($defs as $d) {
-                    if ($d['type'] === $t) { $prepend[] = $d; break; }
+                    if ($d['type'] === $t) {
+                        $prepend[] = $d;
+                        break;
+                    }
                 }
             }
         }
@@ -241,38 +244,38 @@ Routes::put('/api/bio/layout', function () {
     $bioIn = is_array($in['bio'] ?? null) ? (array)$in['bio'] : [];
     $blocks = $in['blocks'] ?? [];
 
-// ---- avatar/bg input compatibility (FE may send avt/bg separately) ----
-$avatarRaw = $bioIn['avatar'] ?? $bioIn['avt'] ?? ($in['avatar'] ?? null) ?? ($in['avt'] ?? null);
-$avatarDataUrl = '';
-if (is_string($avatarRaw)) {
-    $avatarDataUrl = trim($avatarRaw);
-} elseif (is_array($avatarRaw)) {
-    $avatarDataUrl = trim((string)($avatarRaw['dataUrl'] ?? $avatarRaw['url'] ?? ''));
-}
-if (strlen($avatarDataUrl) > 800000) $avatarDataUrl = ''; // block oversized base64
+    // ---- avatar/bg input compatibility (FE may send avt/bg separately) ----
+    $avatarRaw = $bioIn['avatar'] ?? $bioIn['avt'] ?? ($in['avatar'] ?? null) ?? ($in['avt'] ?? null);
+    $avatarDataUrl = '';
+    if (is_string($avatarRaw)) {
+        $avatarDataUrl = trim($avatarRaw);
+    } elseif (is_array($avatarRaw)) {
+        $avatarDataUrl = trim((string)($avatarRaw['dataUrl'] ?? $avatarRaw['url'] ?? ''));
+    }
+    if (strlen($avatarDataUrl) > 800000) $avatarDataUrl = ''; // block oversized base64
 
-// accept bg_custom from multiple keys
-if (!isset($bioIn['bg_custom'])) {
-    $bioIn['bg_custom'] = (string)($bioIn['bgCustom'] ?? $bioIn['bg'] ?? $bioIn['background'] ?? ($in['bg'] ?? '') ?? ($in['background'] ?? ''));
-}
+    // accept bg_custom from multiple keys
+    if (!isset($bioIn['bg_custom'])) {
+        $bioIn['bg_custom'] = (string)($bioIn['bgCustom'] ?? $bioIn['bg'] ?? $bioIn['background'] ?? ($in['bg'] ?? '') ?? ($in['background'] ?? ''));
+    }
 
-if ($avatarDataUrl !== '') {
-    // merge into blocks payload so it gets persisted to bio_blocks
-    if (!is_array($blocks)) $blocks = [];
-    $found = false;
-    foreach ($blocks as $i => $b) {
-        if (is_array($b) && (string)($b['type'] ?? '') === 'avatar') {
-            if (!isset($blocks[$i]['data']) || !is_array($blocks[$i]['data'])) $blocks[$i]['data'] = [];
-            $blocks[$i]['data']['dataUrl'] = $avatarDataUrl;
-            $found = true;
-            break;
+    if ($avatarDataUrl !== '') {
+        // merge into blocks payload so it gets persisted to bio_blocks
+        if (!is_array($blocks)) $blocks = [];
+        $found = false;
+        foreach ($blocks as $i => $b) {
+            if (is_array($b) && (string)($b['type'] ?? '') === 'avatar') {
+                if (!isset($blocks[$i]['data']) || !is_array($blocks[$i]['data'])) $blocks[$i]['data'] = [];
+                $blocks[$i]['data']['dataUrl'] = $avatarDataUrl;
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            array_unshift($blocks, ['type' => 'avatar', 'data' => ['dataUrl' => $avatarDataUrl]]);
         }
     }
-    if (!$found) {
-        array_unshift($blocks, ['type' => 'avatar', 'data' => ['dataUrl' => $avatarDataUrl]]);
-    }
-}
-// ---- end compatibility ----
+    // ---- end compatibility ----
 
     // validate: nếu blocks rỗng -> OK (server tự default)
     $errs = validate_blocks($blocks);
@@ -339,7 +342,6 @@ if ($avatarDataUrl !== '') {
 
         $pdo->commit();
         json_out(['ok' => true]);
-
     } catch (\Throwable $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
 
