@@ -37,8 +37,9 @@ if (KNCMS::checkLogin()) : ?>
             <div class="kn-nav-center">
                 <button class="kn-nav-btn <?= activeNav('dashboard') ?? activeNav('home') ?? activeNav('') ?>"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
                 <button class="kn-nav-btn <?= activeNav('bio') ?>" data-go="/bio/layout"><i class="fa-solid fa-user"></i> Bio layout</button>
-                <button class="kn-nav-btn <?= activeNav('app') ?>" data-go="/nfc"><i class="fa-solid fa-id-card-clip"></i> Thẻ NFC</button>
+                <button class="kn-nav-btn <?= activeNav('app') ?>" data-go="/app"><i class="fa-solid fa-id-card-clip"></i> Thẻ NFC</button>
                 <button class="kn-nav-btn <?= activeNav('history') ?>" data-go="/history"><i class="fa-regular fa-clock"></i> Lịch sử</button>
+                <button class="kn-nav-btn <?= activeNav('card/list') ?>" data-go="/card/list">Cards</button>
             </div>
 
             <div class="kn-nav-right">

@@ -18,7 +18,7 @@ function dispatch_card_system(string $system, string $method): void {
     case 'list':
       if ($method !== 'GET') card_json_out(['ok'=>false,'error'=>'METHOD_NOT_ALLOWED'], 405);
       $rows = KNCMS::get_list(
-        'SELECT id,title,status,thumb_url,created_at,updated_at FROM cards WHERE user_id=:uid ORDER BY id DESC',
+        'SELECT * FROM cards WHERE user_id=:uid ORDER BY id DESC',
         ['uid'=>$uid]
       );
       card_json_out(['ok'=>true,'cards'=>$rows]);
